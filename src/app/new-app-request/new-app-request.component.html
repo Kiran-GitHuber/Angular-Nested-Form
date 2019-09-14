@@ -1,0 +1,186 @@
+<div class="main-container container row">
+  <div class="col-12">
+    <form [formGroup]="newAppRequestForm" novalidate xmlns="http://www.w3.org/1999/html">
+      <div>
+        <mat-form-field class="">
+          <mat-label>Protocol</mat-label>
+          <mat-select formControlName="protocol"
+                      disableOptionCentering panelClass="proto-panel">
+            <mat-option *ngFor="let proto of protocolTypes" [value]="proto">
+              {{proto || 'None'}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <mat-form-field>
+        <mat-label>CSI ID</mat-label>
+        <input matInput formControlName="csiId" required/>
+        <mat-error
+          *ngIf="!newAppRequestForm.controls['csiId'].valid && newAppRequestForm.controls['csiId'].touched">
+          {{ getErrorCsiId() }}
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Package Name</mat-label>
+        <input matInput formControlName="packageName" readonly/>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Application Name</mat-label>
+        <input matInput formControlName="appName"/>
+      </mat-form-field>
+      <div formGroupName="region" class="config-section">
+        <fieldset>
+          <legend>Region</legend>
+          <mat-form-field>
+            <mat-label>Org</mat-label>
+            <input matInput formControlName="org"/>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Unit</mat-label>
+            <input matInput formControlName="unit"/>
+          </mat-form-field>
+        </fieldset>
+      </div>
+      <div formGroupName="pomXml" class="config-section">
+        <fieldset>
+          <legend>POM XML</legend>
+          <mat-form-field>
+            <label>Group ID</label>
+            <input matInput formControlName="groupId"/>
+          </mat-form-field>
+          <mat-form-field>
+            <label>Artifact ID</label>
+            <input matInput formControlName="artifactId"/>
+          </mat-form-field>
+        </fieldset>
+      </div>
+      <div formGroupName="teamDetails" class="config-section">
+        <fieldset>
+          <legend>Team Details</legend>
+          <mat-form-field>
+            <mat-label>Snow Group</mat-label>
+            <input matInput formControlName="snowGroup"/>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Team Owners</mat-label>
+            <input matInput formControlName="teamOwners"/>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>PR Approvers</mat-label>
+            <input matInput formControlName="prApprovers"/>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Reviewers</mat-label>
+            <input matInput formControlName="reviewers"/>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Non-Reviewers</mat-label>
+            <input matInput formControlName="nonReviewers"/>
+          </mat-form-field>
+        </fieldset>
+      </div>
+      <mat-form-field>
+        <mat-label>Dependencies</mat-label>
+        <input matInput formControlName="dependencies"/>
+      </mat-form-field>
+      <div formGroupName="eks" class="config-section">
+        <fieldset>
+          <legend>Docker</legend>
+          <div formGroupName="deployment">
+            <fieldset>
+              <legend>Deployment</legend>
+              <mat-form-field>
+                <mat-label>App Name</mat-label>
+                <input matInput formControlName="appName"/>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Environment</mat-label>
+                <input matInput formControlName="environment"/>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Container Name</mat-label>
+                <input matInput formControlName="containerName"/>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Container Port</mat-label>
+                <input matInput formControlName="containerPort"/>
+              </mat-form-field>
+              <div formArrayName="environments">
+                <div *ngFor="let environments of EnvironmentValues.controls; let e=index;" [formGroupName]="e">
+                  <mat-form-field>
+                    <mat-label>Name</mat-label>
+                    <input matInput formControlName="name"/>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>Value</mat-label>
+                    <input matInput formControlName="value"/>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div formArrayName="volumes" style="background-color: burlywood">
+                <div *ngFor="let volumes of VolumesDetails.controls; let v=index;" [formGroupName]="v">
+                    <label>Name</label>
+                    <input formControlName="name"/>
+                  <div formGroupName="configMap">
+                    <label>Name</label>
+                    <input formControlName="name" placeholder="cfmap name"/>
+                    <button class="btn btn-outline-primary" (click)="addKeyValues(volumes)">add keys</button>
+                    <div formArrayName="items" style="background-color: red">
+                      <div *ngFor="let items of getItems(volumes); let c=index;" [formGroupName]="c">
+                        <label>Key</label>
+                        <input formControlName="key"/>
+                        <label>Path</label>
+                        <input formControlName="path"/>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div formGroupName="service">
+            <fieldset>
+              <legend>Service</legend>
+              <mat-form-field>
+                <mat-label>Name Space</mat-label>
+                <input matInput formControlName="nameSpace"/>
+              </mat-form-field>
+            </fieldset>
+          </div>
+          <button class="btn btn-outline-primary mr-2" (click)="addEnvironmentValues()">add envs</button>
+          <button class="btn btn-outline-primary ml-2" (click)="addDeploymentVolumes()">add vols</button>
+
+          <div formGroupName="ingress">
+            <fieldset>
+              <legend>Ingress</legend>
+              <mat-form-field>
+                <mat-label>Host</mat-label>
+                <input matInput formControlName="host"/>
+              </mat-form-field>
+              <div formArrayName="paths">
+                <div *ngFor="let paths of IngressPaths.controls; let p=index;" [formGroupName]="p">
+                  <mat-label>Path</mat-label>
+                  <input matInput formControlName="path"/>
+                  <div  formGroupName="backend">
+                    <mat-form-field>
+                      <mat-label>Service Name</mat-label>
+                      <input matInput formControlName="serviceName"/>
+                    </mat-form-field>
+                    <mat-form-field>
+                      <mat-label>Service Port</mat-label>
+                      <input matInput formControlName="servicePort"/>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <button class="btn btn-outline-primary" (click)="addIngressPaths()">add paths</button>
+              </div>
+            </fieldset>
+          </div>
+        </fieldset>
+      </div>
+    </form>
+    {{newAppRequestForm.value | json}}
+  </div>
+</div>
+
+

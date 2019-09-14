@@ -1,0 +1,24 @@
+<form [formGroup] = "requestForm" novalidate>
+  <div>
+    <label>Snow Group</label>
+    <input formControlName="snowGroup"/>
+  </div>
+  <div>
+    <label>Pr Approvers</label>
+    <input formControlName="prApprovers"/>
+  </div>
+  <div>
+    <label>Team Owner</label>
+    <input formControlName="teamOwner"/>
+  </div>
+  <div formArrayName="volumes" >
+    <div *ngFor="let volumes of VolumesForm.controls; let i=index;" [formGroupName]="i">
+        <label>Volume Name</label>
+        <input formControlName="name"/>
+        <label>Config</label>
+        <input formControlName="config"/>
+    </div>
+  </div>
+  <button (click)="addVolume()">Addfield</button>
+</form>
+{{requestForm.value | json}}
